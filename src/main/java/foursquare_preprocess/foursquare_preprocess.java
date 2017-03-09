@@ -45,8 +45,59 @@ public class foursquare_preprocess {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
 	}
+
+	public static void GetUserID()
+		{
+			BufferedReader reader = null;
+			String str = null;
+			Set<Integer> ids = new TreeSet<Integer>();
+			
+			FileWriter fwWriter = null;
+			try {
+				reader = new BufferedReader(new FileReader(new File(users_filepath)));
+				reader.readLine();
+				reader.readLine();
+				while((str = reader.readLine())!= null)
+				{
+					if(str.indexOf('|') == -1)
+						continue;
+					String[] l = str.split("\\|");
+					
+					int user_id = Integer.parseInt(l[0].trim());
+					
+	//				String lat_str = l[1].trim();
+	//				String lon_str = l[2].trim();
+	//				
+	//				if(!lat_str.equals("") && !lon_str.equals(""))
+	//				{
+	//					double lat = Double.parseDouble(lat_str);
+	//					double lon = Double.parseDouble(lon_str);
+	//					if(lon > 180 || lon < -180 || lat > 90 || lat < -90)
+	//					{
+	//						OwnMethods.Print(str);
+	//						continue;
+	//					}
+	//				}
+					
+					ids.add(user_id);
+				}
+				reader.close();
+				
+				fwWriter = new FileWriter(directory + "User_id.txt");
+				for(int id : ids)
+				{
+					fwWriter.write(String.format("%d\n", id));
+				}
+				fwWriter.close();
+				
+			} catch (Exception e) {
+				// TODO: handle exception
+				OwnMethods.Print(str);
+				e.printStackTrace();
+				
+			}
+		}
 
 	public static void GetVenueID()
 	{
@@ -90,58 +141,6 @@ public class foursquare_preprocess {
 			reader.close();
 			OwnMethods.Print(String.format("Remove count:%d\n", remove_count));
 			fwWriter = new FileWriter(directory + "Loc_id.txt");
-			for(int id : ids)
-			{
-				fwWriter.write(String.format("%d\n", id));
-			}
-			fwWriter.close();
-			
-		} catch (Exception e) {
-			// TODO: handle exception
-			OwnMethods.Print(str);
-			e.printStackTrace();
-			
-		}
-	}
-	
-	public static void GetUserID()
-	{
-		BufferedReader reader = null;
-		String str = null;
-		Set<Integer> ids = new TreeSet<Integer>();
-		
-		FileWriter fwWriter = null;
-		try {
-			reader = new BufferedReader(new FileReader(new File(users_filepath)));
-			reader.readLine();
-			reader.readLine();
-			while((str = reader.readLine())!= null)
-			{
-				if(str.indexOf('|') == -1)
-					continue;
-				String[] l = str.split("\\|");
-				
-				int user_id = Integer.parseInt(l[0].trim());
-				
-//				String lat_str = l[1].trim();
-//				String lon_str = l[2].trim();
-//				
-//				if(!lat_str.equals("") && !lon_str.equals(""))
-//				{
-//					double lat = Double.parseDouble(lat_str);
-//					double lon = Double.parseDouble(lon_str);
-//					if(lon > 180 || lon < -180 || lat > 90 || lat < -90)
-//					{
-//						OwnMethods.Print(str);
-//						continue;
-//					}
-//				}
-				
-				ids.add(user_id);
-			}
-			reader.close();
-			
-			fwWriter = new FileWriter(directory + "User_id.txt");
 			for(int id : ids)
 			{
 				fwWriter.write(String.format("%d\n", id));
@@ -287,39 +286,39 @@ public class foursquare_preprocess {
 		String str = null;
 		try {
 			//user entity
-//			reader = new BufferedReader(new FileReader(new File(users_filepath)));
-//			reader.readLine();
-//			reader.readLine();
-//			while((str = reader.readLine())!=null)
-//			{
-//				if(str.indexOf('|') == -1)
-//					continue;
-//				String[] l = str.split("\\|");
-//				int id = Integer.parseInt(l[0].trim());
-//				if(user_id_map.containsKey(id))
-//				{
-//					int id_map = user_id_map.get(id);
-//
-//					String lat_str = l[1].trim();
-//					String lon_str = l[2].trim();
-//					
-//					if(lat_str.equals("") || lon_str.equals(""))
-//						continue;
-//					else
-//					{
-//						double lat = Double.parseDouble(lat_str);
-//						double lon = Double.parseDouble(lon_str);
-//						Entity p_entit = new Entity(lon, lat);
-//						entities.set(id_map, p_entit);
-//					}
-//					
-//				}
-//				else {
-//					OwnMethods.Print(String.format("The user does not exist in graph\n%s", str));
-//					continue;
-//				}
-//			}
-//			reader.close();
+			reader = new BufferedReader(new FileReader(new File(users_filepath)));
+			reader.readLine();
+			reader.readLine();
+			while((str = reader.readLine())!=null)
+			{
+				if(str.indexOf('|') == -1)
+					continue;
+				String[] l = str.split("\\|");
+				int id = Integer.parseInt(l[0].trim());
+				if(user_id_map.containsKey(id))
+				{
+					int id_map = user_id_map.get(id);
+
+					String lat_str = l[1].trim();
+					String lon_str = l[2].trim();
+					
+					if(lat_str.equals("") || lon_str.equals(""))
+						continue;
+					else
+					{
+						double lat = Double.parseDouble(lat_str);
+						double lon = Double.parseDouble(lon_str);
+						Entity p_entit = new Entity(lon, lat);
+						entities.set(id_map, p_entit);
+					}
+					
+				}
+				else {
+					OwnMethods.Print(String.format("The user does not exist in graph\n%s", str));
+					continue;
+				}
+			}
+			reader.close();
 //			
 			//venue entity
 			reader = new BufferedReader(new FileReader(new File(venues_filepath)));
@@ -358,7 +357,7 @@ public class foursquare_preprocess {
 			if(entities.size() != user_id_map.size() + venue_id_map.size())
 				OwnMethods.Print("Size not equal");
 			
-			OwnMethods.OutputEntity(entities, directory + "entity_newformat.txt");
+			OwnMethods.OutputEntity(entities, directory + "entity_newformat_Minhop.txt");
 		} catch (Exception e) {
 			e.printStackTrace();
 			OwnMethods.Print(str);
