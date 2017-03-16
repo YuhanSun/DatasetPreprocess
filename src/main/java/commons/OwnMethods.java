@@ -2,6 +2,7 @@ package commons;
 
 import java.awt.Image;
 import java.io.*;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.util.*;
 
@@ -9,6 +10,86 @@ import org.roaringbitmap.RoaringBitmap;
 import org.roaringbitmap.buffer.ImmutableRoaringBitmap;
 
 public class OwnMethods {
+	
+	 public static ArrayList<Entity> ReadEntity(String entity_path) {
+	        ArrayList<Entity> entities = null;
+	        BufferedReader reader = null;
+	        String str = null;
+	        try {
+	            reader = new BufferedReader(new FileReader(new File(entity_path)));
+	            str = reader.readLine();
+	            int node_count = Integer.parseInt(str);
+	            entities = new ArrayList<Entity>(node_count);
+	            int id = 0;
+	            while ((str = reader.readLine()) != null) {
+	                Entity entity;
+	                String[] str_l = str.split(",");
+	                int flag = Integer.parseInt(str_l[1]);
+	                if (flag == 0) {
+	                    entity = new Entity();
+	                    entities.add(entity);
+	                } else {
+	                    entity = new Entity(Double.parseDouble(str_l[2]), Double.parseDouble(str_l[3]));
+	                    entities.add(entity);
+	                }
+	                ++id;
+	            }
+	            reader.close();
+	        }
+	        catch (Exception node_count) {
+	            // empty catch block
+	        }
+	        return entities;
+	    }
+	
+	public static ArrayList<ArrayList<MyRectangle>> ReadHmbr(String hmbr_path)
+	{
+		ArrayList<ArrayList<MyRectangle>> hmbr = null;
+		BufferedReader reader = null;
+		String line = null;
+		try {
+			reader = new BufferedReader(new FileReader(new File(hmbr_path)));
+			line = reader.readLine();
+			String [] list_hmbr = line.split(",");
+			int node_count = Integer.parseInt(list_hmbr[0]);
+			int hop_num = Integer.parseInt(list_hmbr[1]);
+			hmbr = new ArrayList<ArrayList<MyRectangle>>(node_count);
+			for ( int i = 0; i < node_count; i++)
+				hmbr.add(new ArrayList<MyRectangle>(hop_num));
+			
+			for ( int i = 0; i < node_count; i++)
+			{
+				line = reader.readLine();
+				list_hmbr = line.split(";");
+				ArrayList<MyRectangle> hmbr_line = hmbr.get(i);
+				for ( int j = 0; j < hop_num; j++)
+				{
+					String start = list_hmbr[j].substring(0, 1);
+					if(start.equals("1") == true)
+					{
+						String rect = list_hmbr[j].substring(3, list_hmbr[j].length()-1);
+						String[] liString = rect.split(",");
+						double minx = Double.parseDouble(liString[0]);
+						double miny = Double.parseDouble(liString[1]);
+						double maxx = Double.parseDouble(liString[2]);
+						double maxy = Double.parseDouble(liString[3]);
+						hmbr_line.add(new MyRectangle(minx, miny, maxx, maxy));
+					}
+					else
+					{
+						hmbr_line.add(null);
+					}
+				}
+			}
+			reader.close();
+			return hmbr;
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+		OwnMethods.Print("ReadHmbr return null!");
+		return hmbr;
+	}
 	
 	public static void OutputEntity(ArrayList<Entity> entities, String entity_path)
 	{
@@ -165,7 +246,7 @@ public class OwnMethods {
 	//Generate Random node_count vertices in the range(0, graph_size) which is attribute id
 	public static HashSet<String> GenerateRandomInteger(long graph_size, int node_count)
 	{
-		HashSet<String> ids = new HashSet();
+		HashSet<String> ids = new HashSet<String>();
 		
 		Random random = new Random();
 		while(ids.size()<node_count)
@@ -196,7 +277,7 @@ public class OwnMethods {
 //		return graph_ids;
 //	}
 	
-	public ArrayList<String> ReadFile(String filename)
+	public static ArrayList<String> ReadFile(String filename, int limit)
 	{
 		ArrayList<String> lines = new ArrayList<String>();
 		
@@ -207,10 +288,19 @@ public class OwnMethods {
 		{
 			reader = new BufferedReader(new FileReader(file));
 			String tempString = null;
-			while((tempString = reader.readLine())!=null)
-			{
-				lines.add(tempString);
+			if(limit == -1)
+				while((tempString = reader.readLine())!=null)
+				{
+					lines.add(tempString);
+				}
+			else {
+				for (int i = 0; i < limit; i++)
+				{
+					tempString = reader.readLine();
+					lines.add(tempString);
+				}
 			}
+			
 			reader.close();
 		}
 		catch(IOException e)
